@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
+	</bean>
+
+	<bean id="exporter" class="com.heyitworks.util.distribjmx.spring.GMSAwareMBeanExporter">
+		<property name="assembler" ref="assembler" />
+		<property name="namingStrategy" ref="namingStrategy" />
+		<property name="autodetect" value="true" />
+		<property name="proxyJDKMBeans" value="true" />
+		<property name="beans">
+			<map>
+				<entry key="com.heyitworks.util.distribjmx.jdk:type=JdkDummy,name=jdkDummy"
+					value-ref="jdkDummy" />
+			</map>
+		</property>
+		<property name="rpcDispatcherFactory">
+			<bean class="${rpcDispatcherFactoryClass}"/>
+		</property>
+	</bean>
+	<bean id="jmxAttributeSource"
+		class="org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource" />
+    
+   	<bean id="assembler"
+		class="com.heyitworks.util.distribjmx.spring.StandardMbeanInfoAssembler">
+		<constructor-arg ref="jmxAttributeSource" />
+	</bean>
+	
+    <!-- will pick up the ObjectName from the annotation -->
+	<bean id="namingStrategy"
+		class="org.springframework.jmx.export.naming.MetadataNamingStrategy">
+		<property name="attributeSource" ref="jmxAttributeSource" />
+	</bean>
+
+	<bean class="com.heyitworks.util.distribjmx.Dummy" id="dummy" />
+	
+	<bean class="com.heyitworks.util.distribjmx.DummyNoInterface" id="dummyNoInterface" />
+	
+	<bean class="com.heyitworks.util.distribjmx.jdk.JdkDummy" id="jdkDummy" />
+	
+	
+</beans>
